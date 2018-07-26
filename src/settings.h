@@ -55,6 +55,7 @@
 #define SWALLOW_FIRST_CLICK         false
 #define IGNORE_EWMH_FOCUS           false
 #define IGNORE_EWMH_FULLSCREEN      0
+#define SEND_EWMH_FULLSCREEN        0
 
 #define CENTER_PSEUDO_TILED         true
 #define HONOR_SIZE_HINTS            false
@@ -97,6 +98,7 @@ int8_t click_to_focus;
 bool swallow_first_click;
 bool ignore_ewmh_focus;
 state_transition_t ignore_ewmh_fullscreen;
+state_transition_t send_ewmh_fullscreen;
 
 bool center_pseudo_tiled;
 bool honor_size_hints;

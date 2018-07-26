@@ -1738,15 +1738,19 @@ void set_fullscreen(monitor_t *m, desktop_t *d, node_t *n, bool value)
 		c->wm_flags |= WM_FLAG_FULLSCREEN;
 		c->last_layer = c->layer;
 		c->layer = LAYER_ABOVE;
+
+	    if (send_ewmh_fullscreen & STATE_TRANSITION_ENTER) ewmh_wm_state_update(n);
 	} else {
 		c->wm_flags &= ~WM_FLAG_FULLSCREEN;
 		c->layer = c->last_layer;
 		if (d->focus == n) {
 			neutralize_occluding_windows(m, d, n);
 		}
+
+	    if (send_ewmh_fullscreen & STATE_TRANSITION_EXIT) ewmh_wm_state_update(n);
 	}
 
-	ewmh_wm_state_update(n);
+	// ewmh_wm_state_update(n);
 	stack(d, n, (d->focus == n));
 }
 
