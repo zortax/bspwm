@@ -502,14 +502,14 @@ void window_rounded_border(xcb_window_t win)
 
     xcb_shape_mask(
         dpy,
-        0 /*Bounding*/,
         0 /*ShapeSet*/,
+        0 /*Bounding*/,
         win, 0, 0, bpid);
 
     xcb_shape_mask(
         dpy,
-        1 /*Clipping*/,
         0 /*ShapeSet*/,
+        1 /*Clipping*/,
         win, 0, 0, cpid);
 
     xcb_free_pixmap(dpy, bpid);
