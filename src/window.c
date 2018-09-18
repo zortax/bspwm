@@ -436,16 +436,16 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
     uint16_t h  = geo->height;
     uint16_t bw = geo->border_width;
     uint8_t windepth = geo->depth;
-	uint16_t iw  = w-2*bw;
-    uint16_t ih  = h-2*bw;
+	uint16_t ow  = w+2*bw;
+	uint16_t oh  = h+2*bw;
 
 	free(geo);
 
     xcb_pixmap_t bpid = xcb_generate_id(dpy);
     xcb_pixmap_t cpid = xcb_generate_id(dpy);
 
-    xcb_create_pixmap(dpy, 1, bpid, win, w+2*bw, h+2*bw);
-    xcb_create_pixmap(dpy, 1, cpid, win, w,      h);
+    xcb_create_pixmap(dpy, 1, bpid, win, ow, oh);
+    xcb_create_pixmap(dpy, 1, cpid, win, w, h);
 
     xcb_gcontext_t bblack = xcb_generate_id(dpy);
     xcb_gcontext_t bwhite = xcb_generate_id(dpy);
@@ -472,33 +472,27 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
     rad += bw; dia = rad*2-1;
 
     xcb_arc_t barcs[] = {
-        { -1,    -1,    dia, dia, 0, 360 << 6 },
-        { -1,    h-dia, dia, dia, 0, 360 << 6 },
-        { w-dia, -1,    dia, dia, 0, 360 << 6 },
-        { w-dia, h-dia, dia, dia, 0, 360 << 6 },
+        { -1,     -1,     dia, dia, 0, 360 << 6 },
+        { -1,     oh-dia, dia, dia, 0, 360 << 6 },
+        { ow-dia, -1,     dia, dia, 0, 360 << 6 },
+        { ow-dia, oh-dia, dia, dia, 0, 360 << 6 },
     };
     xcb_rectangle_t brects[] = {
-        { rad-1, -1, w-dia+1, h+1 },
-        { -1, rad-1, w+1, h-dia+1 },
+        { rad, 0, ow-dia, oh },
+        { 0, rad, ow, oh-dia },
     };
 
     rad -= bw; dia = rad*2-1;
 
     xcb_arc_t carcs[] = {
-        { bw-1,      bw-1,      dia, dia, 0, 360 << 6 },
-        { bw-1,      bw+ih-dia, dia, dia,   0, 360 << 6 },
-        { bw+iw-dia, bw-1,      dia, dia, 0, 360 << 6 },
-        { bw+iw-dia, bw+ih-dia, dia, dia,   0, 360 << 6 },
+        { -1,    -1,    dia, dia, 0, 360 << 6 },
+        { -1,    h-dia, dia, dia, 0, 360 << 6 },
+        { w-dia, -1,    dia, dia, 0, 360 << 6 },
+        { w-dia, h-dia, dia, dia, 0, 360 << 6 },
     };
     xcb_rectangle_t crects[] = {
-        { rad+bw, bw, iw-dia, ih },
-        { bw, rad+bw, iw, ih-dia },
-    };
-    xcb_rectangle_t ccorrections[] = {
-        { 0, 0,     w, bw },
-        { 0, bw+ih, w, bw },
-        { 0, 0,     bw, h },
-        { bw+iw, 0, bw, h },
+        { rad, 0, w-dia, h },
+        { 0, rad, w, h-dia },
     };
 
     xcb_rectangle_t bounding = {0, 0, w+2*bw, h+2*bw};
@@ -510,13 +504,12 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
     xcb_poly_fill_rectangle(dpy, cpid, cblack, 1, &clipping);
     xcb_poly_fill_rectangle(dpy, cpid, cwhite, 2, crects);
     xcb_poly_fill_arc(dpy, cpid, cwhite, 4, carcs);
-    xcb_poly_fill_rectangle(dpy, cpid, cblack, 4, ccorrections);
 
     xcb_shape_mask(
         dpy,
         0 /*ShapeSet*/,
         0 /*Bounding*/,
-        win, 0, 0, bpid);
+        win, -bw, -bw, bpid);
 
     xcb_shape_mask(
         dpy,
