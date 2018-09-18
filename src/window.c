@@ -139,6 +139,7 @@ bool manage_window(xcb_window_t win, rule_consequence_t *csq, int fd)
 	node_t *n = make_node(win);
 	client_t *c = make_client();
 	c->border_width = csq->border ? d->border_width : 0;
+	c->border_radius = d->border_radius;
 	n->client = c;
 	initialize_client(n);
 	initialize_floating_rectangle(n);
@@ -213,6 +214,8 @@ bool manage_window(xcb_window_t win, rule_consequence_t *csq, int fd)
 		stack(d, n, false);
 		draw_border(n, false, (m == mon));
 	}
+
+	window_rounded_border(n->id, n->client->drawn_border_radius);
 
 	ewmh_set_wm_desktop(n, d);
 	ewmh_update_client_list(false);
@@ -414,8 +417,9 @@ void draw_border(node_t *n, bool focused_node, bool focused_monitor)
 	}
 }
 
-void window_rounded_border(xcb_window_t win)
+void window_rounded_border(xcb_window_t win, unsigned int radius)
 {
+    if (radius == 0) return;
     // Check for compatibility
     const xcb_query_extension_reply_t *shape_query;
     xcb_shape_query_extents_cookie_t   extents_cookie;
@@ -431,6 +435,7 @@ void window_rounded_border(xcb_window_t win)
 	uint16_t w  = geo->width;
     uint16_t h  = geo->height;
     uint16_t bw = geo->border_width;
+    uint8_t windepth = geo->depth;
 	uint16_t iw  = w-2*bw;
     uint16_t ih  = h-2*bw;
 
@@ -453,19 +458,16 @@ void window_rounded_border(xcb_window_t win)
                   (uint32_t[]){0, 0});
     xcb_create_gc(dpy, bwhite, bpid,
                   XCB_GC_FOREGROUND,
-                  //(uint32_t[]){screen->white_pixel, 0});
                   (uint32_t[]){1, 0});
     xcb_create_gc(dpy, cblack, cpid,
                   XCB_GC_FOREGROUND,
-                  //(uint32_t[]){screen->black_pixel, 0});
                   (uint32_t[]){0, 0});
     xcb_create_gc(dpy, cwhite, cpid,
                   XCB_GC_FOREGROUND,
-                  //(uint32_t[]){screen->white_pixel, 0});
                   (uint32_t[]){1, 0});
 
     int32_t rad, dia;
-    rad = 7;
+    rad = radius;
 
     rad += bw; dia = rad*2-1;
 
@@ -524,7 +526,6 @@ void window_rounded_border(xcb_window_t win)
 
     xcb_free_pixmap(dpy, bpid);
     xcb_free_pixmap(dpy, cpid);
-
 }
 
 void window_draw_border(xcb_window_t win, uint32_t border_color_pxl)
@@ -727,6 +728,7 @@ bool resize_client(coordinates_t *loc, resize_handle_t rh, int dx, int dy, bool 
 		n->client->floating_rectangle = (xcb_rectangle_t) {x, y, width, height};
 		if (n->client->state == STATE_FLOATING) {
 			window_move_resize(n->id, x, y, width, height);
+			window_rounded_border(n->id, n->client->drawn_border_radius);
 
 			if (!grabbing) {
 				put_status(SBSC_MASK_NODE_GEOMETRY, "node_geometry 0x%08X 0x%08X 0x%08X %ux%u+%i+%i\n", loc->monitor->id, loc->desktop->id, loc->node->id, width, height, x, y);
@@ -921,8 +923,11 @@ void window_border_width(xcb_window_t win, uint32_t bw)
 {
 	uint32_t values[] = {bw};
 	xcb_configure_window(dpy, win, XCB_CONFIG_WINDOW_BORDER_WIDTH, values);
+}
 
-	window_rounded_border(win);
+void window_border_radius(client_t *cli, uint32_t br)
+{
+	cli->drawn_border_radius = br;
 }
 
 void window_move(xcb_window_t win, int16_t x, int16_t y)
@@ -935,18 +940,12 @@ void window_resize(xcb_window_t win, uint16_t w, uint16_t h)
 {
 	uint32_t values[] = {w, h};
 	xcb_configure_window(dpy, win, XCB_CONFIG_WINDOW_WIDTH_HEIGHT, values);
-
-	window_rounded_border(win);
 }
 
 void window_move_resize(xcb_window_t win, int16_t x, int16_t y, uint16_t w, uint16_t h)
 {
 	uint32_t values[] = {x, y, w, h};
-
-	window_rounded_border(win);
 	xcb_configure_window(dpy, win, XCB_CONFIG_WINDOW_X_Y_WIDTH_HEIGHT, values);
-
-	window_rounded_border(win);
 }
 
 void window_center(monitor_t *m, client_t *c)

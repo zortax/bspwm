@@ -40,6 +40,7 @@
 #define PADDING              {0, 0, 0, 0}
 #define WINDOW_GAP           6
 #define BORDER_WIDTH         1
+#define BORDER_RADIUS        0
 #define SPLIT_RATIO          0.5
 #define AUTOMATIC_SCHEME     SCHEME_LONGEST_SIDE
 
@@ -75,6 +76,7 @@ char presel_feedback_color[MAXLEN];
 padding_t padding;
 int window_gap;
 unsigned int border_width;
+unsigned int border_radius;
 double split_ratio;
 child_polarity_t initial_polarity;
 automatic_scheme_t automatic_scheme;
