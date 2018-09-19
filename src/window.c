@@ -447,24 +447,11 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
     xcb_create_pixmap(dpy, 1, bpid, win, ow, oh);
     xcb_create_pixmap(dpy, 1, cpid, win, w, h);
 
-    xcb_gcontext_t bblack = xcb_generate_id(dpy);
-    xcb_gcontext_t bwhite = xcb_generate_id(dpy);
-    xcb_gcontext_t cblack = xcb_generate_id(dpy);
-    xcb_gcontext_t cwhite = xcb_generate_id(dpy);
+    xcb_gcontext_t black = xcb_generate_id(dpy);
+    xcb_gcontext_t white = xcb_generate_id(dpy);
 
-    xcb_create_gc(dpy, bblack, bpid,
-                  XCB_GC_FOREGROUND,
-                  //(uint32_t[]){screen->black_pixel, 0});
-                  (uint32_t[]){0, 0});
-    xcb_create_gc(dpy, bwhite, bpid,
-                  XCB_GC_FOREGROUND,
-                  (uint32_t[]){1, 0});
-    xcb_create_gc(dpy, cblack, cpid,
-                  XCB_GC_FOREGROUND,
-                  (uint32_t[]){0, 0});
-    xcb_create_gc(dpy, cwhite, cpid,
-                  XCB_GC_FOREGROUND,
-                  (uint32_t[]){1, 0});
+    xcb_create_gc(dpy, black, bpid, XCB_GC_FOREGROUND, (uint32_t[]){0, 0});
+    xcb_create_gc(dpy, white, bpid, XCB_GC_FOREGROUND, (uint32_t[]){1, 0});
 
     int32_t rad, dia;
     rad = radius;
@@ -496,26 +483,17 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
     };
 
     xcb_rectangle_t bounding = {0, 0, w+2*bw, h+2*bw};
-    xcb_poly_fill_rectangle(dpy, bpid, bblack, 1, &bounding);
-    xcb_poly_fill_rectangle(dpy, bpid, bwhite, 2, brects);
-    xcb_poly_fill_arc(dpy, bpid, bwhite, 4, barcs);
+    xcb_poly_fill_rectangle(dpy, bpid, black, 1, &bounding);
+    xcb_poly_fill_rectangle(dpy, bpid, white, 2, brects);
+    xcb_poly_fill_arc(dpy, bpid, white, 4, barcs);
 
     xcb_rectangle_t clipping = {0, 0, w, h};
-    xcb_poly_fill_rectangle(dpy, cpid, cblack, 1, &clipping);
-    xcb_poly_fill_rectangle(dpy, cpid, cwhite, 2, crects);
-    xcb_poly_fill_arc(dpy, cpid, cwhite, 4, carcs);
+    xcb_poly_fill_rectangle(dpy, cpid, black, 1, &clipping);
+    xcb_poly_fill_rectangle(dpy, cpid, white, 2, crects);
+    xcb_poly_fill_arc(dpy, cpid, white, 4, carcs);
 
-    xcb_shape_mask(
-        dpy,
-        0 /*ShapeSet*/,
-        0 /*Bounding*/,
-        win, -bw, -bw, bpid);
-
-    xcb_shape_mask(
-        dpy,
-        0 /*ShapeSet*/,
-        1 /*Clipping*/,
-        win, 0, 0, cpid);
+    xcb_shape_mask(dpy, XCB_SHAPE_SO_SET, XCB_SHAPE_SK_BOUNDING,  win, -bw, -bw, bpid);
+    xcb_shape_mask(dpy, XCB_SHAPE_SO_SET, XCB_SHAPE_SK_CLIP, win, 0, 0, cpid);
 
     xcb_free_pixmap(dpy, bpid);
     xcb_free_pixmap(dpy, cpid);
