@@ -106,7 +106,6 @@ void configure_request(xcb_generic_event_t *evt)
 		uint16_t mask = 0;
 		uint32_t values[7];
 		unsigned short i = 0;
-		bool recalc_rb = false;
 
 		if (e->value_mask & XCB_CONFIG_WINDOW_X) {
 			mask |= XCB_CONFIG_WINDOW_X;
@@ -121,19 +120,16 @@ void configure_request(xcb_generic_event_t *evt)
 		if (e->value_mask & XCB_CONFIG_WINDOW_WIDTH) {
 			mask |= XCB_CONFIG_WINDOW_WIDTH;
 			values[i++] = e->width;
-			recalc_rb = true;
 		}
 
 		if (e->value_mask & XCB_CONFIG_WINDOW_HEIGHT) {
 			mask |= XCB_CONFIG_WINDOW_HEIGHT;
 			values[i++] = e->height;
-			recalc_rb = true;
 		}
 
 		if (e->value_mask & XCB_CONFIG_WINDOW_BORDER_WIDTH) {
 			mask |= XCB_CONFIG_WINDOW_BORDER_WIDTH;
 			values[i++] = e->border_width;
-			recalc_rb = true;
 		}
 
 		if (e->value_mask & XCB_CONFIG_WINDOW_SIBLING) {
@@ -147,9 +143,6 @@ void configure_request(xcb_generic_event_t *evt)
 		}
 
 		xcb_configure_window(dpy, e->window, mask, values);
-
-		if (recalc_rb)
-		    window_rounded_border(e->window, c->drawn_border_radius);
 
 	} else if (IS_FLOATING(c)) {
 		width = c->floating_rectangle.width;
