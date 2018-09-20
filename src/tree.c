@@ -143,7 +143,7 @@ void apply_layout(monitor_t *m, desktop_t *d, node_t *n, layout_t l, xcb_rectang
 
 		if (!rect_eq(r, cr)) {
 			window_move_resize(n->id, r.x, r.y, r.width, r.height);
-			window_rounded_border(n->id, n->client->drawn_border_radius);
+			window_rounded_border(n);
 			if (!grabbing) {
 				put_status(SBSC_MASK_NODE_GEOMETRY, "node_geometry 0x%08X 0x%08X 0x%08X %ux%u+%i+%i\n", m->id, d->id, n->id, r.width, r.height, r.x, r.y);
 			}
@@ -151,7 +151,7 @@ void apply_layout(monitor_t *m, desktop_t *d, node_t *n, layout_t l, xcb_rectang
 
 		window_border_width(n->id, bw);
 		window_border_radius(n->client, br);
-		window_rounded_border(n->id, n->client->drawn_border_radius);
+		window_rounded_border(n);
 
 	} else {
 		xcb_rectangle_t first_rect;

@@ -215,7 +215,7 @@ bool manage_window(xcb_window_t win, rule_consequence_t *csq, int fd)
 		draw_border(n, false, (m == mon));
 	}
 
-	window_rounded_border(n->id, n->client->drawn_border_radius);
+	window_rounded_border(n);
 
 	ewmh_set_wm_desktop(n, d);
 	ewmh_update_client_list(false);
@@ -324,6 +324,7 @@ void draw_presel_feedback(monitor_t *m, desktop_t *d, node_t *n)
 
 	window_move_resize(p->feedback, n->rectangle.x + presel_rect.x, n->rectangle.y + presel_rect.y,
 	                   presel_rect.width, presel_rect.height);
+	window_rounded_border(n);
 
 	if (!exists && m->desk == d) {
 		window_show(p->feedback);
@@ -417,13 +418,14 @@ void draw_border(node_t *n, bool focused_node, bool focused_monitor)
 	}
 }
 
-void window_rounded_border(xcb_window_t win, unsigned int radius)
+void window_rounded_border(node_t *n)
 {
+    xcb_window_t win = n->id;
+    unsigned int radius = n->client->drawn_border_radius;
+
     if (radius == 0) return;
     // Check for compatibility
     const xcb_query_extension_reply_t *shape_query;
-    xcb_shape_query_extents_cookie_t   extents_cookie;
-    xcb_shape_query_extents_reply_t   *extents;
 
     shape_query = xcb_get_extension_data (dpy, &xcb_shape_id);
     if (!shape_query->present) return;
@@ -432,10 +434,11 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
 	xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(dpy, xcb_get_geometry(dpy, win), NULL);
     if (geo == NULL) return;
 
+    uint16_t x  = geo->x;
+    uint16_t y  = geo->y;
 	uint16_t w  = geo->width;
     uint16_t h  = geo->height;
     uint16_t bw = geo->border_width;
-    uint8_t windepth = geo->depth;
 	uint16_t ow  = w+2*bw;
 	uint16_t oh  = h+2*bw;
 
@@ -494,6 +497,16 @@ void window_rounded_border(xcb_window_t win, unsigned int radius)
 
     xcb_shape_mask(dpy, XCB_SHAPE_SO_SET, XCB_SHAPE_SK_BOUNDING,  win, -bw, -bw, bpid);
     xcb_shape_mask(dpy, XCB_SHAPE_SO_SET, XCB_SHAPE_SK_CLIP, win, 0, 0, cpid);
+
+    if (n->presel != NULL && n->presel != XCB_NONE) {
+        xcb_window_t fb = n->presel->feedback;
+        xcb_get_geometry_reply_t *fb_geo = xcb_get_geometry_reply(dpy, xcb_get_geometry(dpy, fb), NULL);
+
+        if (fb_geo != NULL) {
+            xcb_shape_mask(dpy, XCB_SHAPE_SO_SET, XCB_SHAPE_SK_BOUNDING, fb, x-fb_geo->x, y-fb_geo->y, bpid);
+            free(fb_geo);
+        }
+    }
 
     xcb_free_pixmap(dpy, bpid);
     xcb_free_pixmap(dpy, cpid);
@@ -699,7 +712,7 @@ bool resize_client(coordinates_t *loc, resize_handle_t rh, int dx, int dy, bool 
 		n->client->floating_rectangle = (xcb_rectangle_t) {x, y, width, height};
 		if (n->client->state == STATE_FLOATING) {
 			window_move_resize(n->id, x, y, width, height);
-			window_rounded_border(n->id, n->client->drawn_border_radius);
+			window_rounded_border(n);
 
 			if (!grabbing) {
 				put_status(SBSC_MASK_NODE_GEOMETRY, "node_geometry 0x%08X 0x%08X 0x%08X %ux%u+%i+%i\n", loc->monitor->id, loc->desktop->id, loc->node->id, width, height, x, y);
