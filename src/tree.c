@@ -128,7 +128,8 @@ void apply_layout(monitor_t *m, desktop_t *d, node_t *n, layout_t l, xcb_rectang
 				}
 			}
 			n->client->tiled_rectangle = r;
-			br = n->client->border_radius;
+			if (!gapless_monocle || l != LAYOUT_MONOCLE)
+				br = n->client->border_radius;
 		/* floating clients */
 		} else if (s == STATE_FLOATING) {
 			r = n->client->floating_rectangle;

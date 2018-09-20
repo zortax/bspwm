@@ -423,7 +423,6 @@ void window_rounded_border(node_t *n)
     xcb_window_t win = n->id;
     unsigned int radius = n->client->drawn_border_radius;
 
-    if (radius == 0) return;
     // Check for compatibility
     const xcb_query_extension_reply_t *shape_query;
 
