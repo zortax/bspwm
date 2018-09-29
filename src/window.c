@@ -144,6 +144,16 @@ bool manage_window(xcb_window_t win, rule_consequence_t *csq, int fd)
 	initialize_client(n);
 	initialize_floating_rectangle(n);
 
+	xcb_shape_query_extents_reply_t* ext = xcb_shape_query_extents_reply(dpy, xcb_shape_query_extents(dpy, n->id), NULL);
+
+	n->client->sets_own_shape = false;
+	if (ext != NULL) {
+	  n->client->sets_own_shape = ext->bounding_shaped || ext->clip_shaped;
+
+	  free(ext);
+	}
+	fprintf(stderr, "sets shape: %d\n", n->client->sets_own_shape);
+
 	if (csq->rect != NULL) {
 		c->floating_rectangle = *csq->rect;
 		free(csq->rect);
@@ -428,6 +438,8 @@ void window_rounded_border(node_t *n)
 
     shape_query = xcb_get_extension_data (dpy, &xcb_shape_id);
     if (!shape_query->present) return;
+
+    if (n->client->sets_own_shape) return;
 
     // get geometry
 	xcb_get_geometry_reply_t *geo = xcb_get_geometry_reply(dpy, xcb_get_geometry(dpy, win), NULL);

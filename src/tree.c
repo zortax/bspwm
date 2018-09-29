@@ -703,6 +703,7 @@ client_t *make_client(void)
 	c->border_radius = border_radius;
 	c->urgent = false;
 	c->shown = false;
+  c->sets_own_shape = false;
 	c->wm_flags = 0;
 	c->icccm_props.input_hint = true;
 	c->icccm_props.take_focus = false;

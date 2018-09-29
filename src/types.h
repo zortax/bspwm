@@ -211,6 +211,7 @@ typedef struct {
 	unsigned int drawn_border_radius;
 	bool urgent;
 	bool shown;
+  bool sets_own_shape;
 	client_state_t state;
 	client_state_t last_state;
 	stack_layer_t layer;
