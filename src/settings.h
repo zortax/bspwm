@@ -38,15 +38,17 @@
 #define PRESEL_FEEDBACK_COLOR         "#f4d775"
 
 #define PADDING              {0, 0, 0, 0}
+#define MONOCLE_PADDING      {0, 0, 0, 0}
 #define WINDOW_GAP           6
 #define BORDER_WIDTH         1
 #define BORDER_RADIUS        0
 #define SPLIT_RATIO          0.5
 #define AUTOMATIC_SCHEME     SCHEME_LONGEST_SIDE
+#define REMOVAL_ADJUSTMENT   true
 
+#define PRESEL_FEEDBACK             true
 #define BORDERLESS_MONOCLE          false
 #define GAPLESS_MONOCLE             false
-#define PADDINGLESS_MONOCLE         false
 #define SINGLE_MONOCLE              false
 
 #define FOCUS_FOLLOWS_POINTER       false
@@ -57,6 +59,7 @@
 #define IGNORE_EWMH_FOCUS           false
 #define IGNORE_EWMH_FULLSCREEN      0
 #define SEND_EWMH_FULLSCREEN        0
+#define IGNORE_EWMH_STRUTS          false
 
 #define CENTER_PSEUDO_TILED         true
 #define HONOR_SIZE_HINTS            false
@@ -75,12 +78,14 @@ char focused_border_color[MAXLEN];
 char presel_feedback_color[MAXLEN];
 
 padding_t padding;
+padding_t monocle_padding;
 int window_gap;
 unsigned int border_width;
 unsigned int border_radius;
 double split_ratio;
 child_polarity_t initial_polarity;
 automatic_scheme_t automatic_scheme;
+bool removal_adjustment;
 tightness_t directional_focus_tightness;
 
 uint16_t pointer_modifier;
@@ -88,9 +93,9 @@ uint32_t pointer_motion_interval;
 pointer_action_t pointer_actions[3];
 int8_t mapping_events_count;
 
+bool presel_feedback;
 bool borderless_monocle;
 bool gapless_monocle;
-bool paddingless_monocle;
 bool single_monocle;
 
 bool focus_follows_pointer;
@@ -99,6 +104,7 @@ bool pointer_follows_monitor;
 int8_t click_to_focus;
 bool swallow_first_click;
 bool ignore_ewmh_focus;
+bool ignore_ewmh_struts;
 state_transition_t ignore_ewmh_fullscreen;
 state_transition_t send_ewmh_fullscreen;
 
