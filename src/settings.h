@@ -106,6 +106,7 @@ extern bool swallow_first_click;
 extern bool ignore_ewmh_focus;
 extern bool ignore_ewmh_struts;
 extern state_transition_t ignore_ewmh_fullscreen;
+extern bool send_ewmh_fullscreen;
 
 extern bool center_pseudo_tiled;
 extern bool honor_size_hints;

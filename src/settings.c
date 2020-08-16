@@ -39,6 +39,7 @@ char presel_feedback_color[MAXLEN];
 padding_t padding;
 padding_t monocle_padding;
 int window_gap;
+unsigned int border_radius;
 unsigned int border_width;
 double split_ratio;
 child_polarity_t initial_polarity;
@@ -64,6 +65,7 @@ bool swallow_first_click;
 bool ignore_ewmh_focus;
 bool ignore_ewmh_struts;
 state_transition_t ignore_ewmh_fullscreen;
+bool send_ewmh_fullscreen;
 
 bool center_pseudo_tiled;
 bool honor_size_hints;
