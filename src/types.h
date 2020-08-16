@@ -183,6 +183,8 @@ typedef struct {
 	option_bool_t below;
 	option_bool_t normal;
 	option_bool_t above;
+	option_bool_t horizontal;
+	option_bool_t vertical;
 } node_select_t;
 
 typedef struct {
@@ -206,8 +208,9 @@ struct icccm_props_t {
 };
 
 typedef struct {
-	char class_name[3 * SMALEN / 2];
-	char instance_name[3 * SMALEN / 2];
+	char class_name[MAXLEN];
+	char instance_name[MAXLEN];
+	char name[MAXLEN];
 	unsigned int border_width;
 	unsigned int border_radius;
 	unsigned int drawn_border_radius;
@@ -344,6 +347,7 @@ typedef struct rule_t rule_t;
 struct rule_t {
 	char class_name[MAXLEN];
 	char instance_name[MAXLEN];
+	char name[MAXLEN];
 	char effect[MAXLEN];
 	bool one_shot;
 	rule_t *prev;
@@ -351,12 +355,13 @@ struct rule_t {
 };
 
 typedef struct {
-	char class_name[3 * SMALEN / 2];
-	char instance_name[3 * SMALEN / 2];
+	char class_name[MAXLEN];
+	char instance_name[MAXLEN];
+	char name[MAXLEN];
 	char monitor_desc[MAXLEN];
 	char desktop_desc[MAXLEN];
 	char node_desc[MAXLEN];
-	char split_dir[SMALEN];
+	direction_t *split_dir;
 	double split_ratio;
 	stack_layer_t *layer;
 	client_state_t *state;
